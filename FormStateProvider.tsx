@@ -15,20 +15,23 @@ export interface IFormState {
   ) => void;
 }
 
-type HandleValidateT = ({
-  values,
-  getValue,
-  setError,
-}: {
+export interface HandleValidateArgsT {
   values: IFormState["values"];
   getValue: IFormState["getValue"];
   setError: IFormState["setError"];
-}) => void;
-export type HandleSubmitT = ({
+}
+
+export type HandleValidateT = ({
   values,
-}: {
+  getValue,
+  setError,
+}: HandleValidateArgsT) => void;
+
+export interface HandleSubmitArgsT {
   values: IFormState["values"];
-}) => void;
+}
+
+export type HandleSubmitT = ({ values }: HandleSubmitArgsT) => void;
 
 const useFormState = (
   initialValues: IFormState["values"],
@@ -145,8 +148,8 @@ const useDetectChange = (x: string) => {
 interface IProps {
   children: any;
   initialValues: IFormState["values"];
-  initialErrors: IFormState["errors"];
-  handleValidate: HandleValidateT;
+  initialErrors?: IFormState["errors"];
+  handleValidate?: HandleValidateT;
   handleSubmit: HandleSubmitT;
 }
 
