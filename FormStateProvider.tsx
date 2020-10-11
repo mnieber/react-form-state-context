@@ -36,12 +36,12 @@ export type HandleSubmitT = ({ values }: HandleSubmitArgsT) => void;
 const useFormState = (
   initialValues: IFormState["values"],
   initialErrors: IFormState["errors"],
-  handleValidate: HandleValidateT,
+  handleValidate: HandleValidateT | undefined,
   handleSubmit: HandleSubmitT
 ): IFormState => {
-  const [values, setValues] = React.useState(initialValues || {});
+  const [values, setValues] = React.useState(initialValues);
   const [errors, setErrors] = React.useState<IFormState["errors"]>(
-    initialErrors ?? {}
+    initialErrors
   );
 
   const _checkKey = (key: string) => {
