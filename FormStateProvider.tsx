@@ -39,10 +39,10 @@ const useFormState = (
   handleValidate: HandleValidateT | undefined,
   handleSubmit: HandleSubmitT
 ): IFormState => {
-  const [values, setValues] = React.useState(initialValues);
-  const [errors, setErrors] = React.useState<IFormState["errors"]>(
-    initialErrors
-  );
+  const [values, setValues] = React.useState({ ...initialValues });
+  const [errors, setErrors] = React.useState<IFormState["errors"]>({
+    ...initialErrors,
+  });
 
   const _checkKey = (key: string) => {
     if (initialValues[key] === undefined) {
@@ -100,7 +100,7 @@ const useFormState = (
 
   const submit = () => {
     if (validate()) {
-      if (handleSubmit) handleSubmit({ values });
+      if (!!handleSubmit) handleSubmit({ values });
     }
   };
 
@@ -145,21 +145,20 @@ const useDetectChange = (x: string) => {
   return changed;
 };
 
-interface IProps {
-  children: any;
+type PropsT = React.PropsWithChildren<{
   initialValues: IFormState["values"];
   initialErrors?: IFormState["errors"];
   handleValidate?: HandleValidateT;
   handleSubmit: HandleSubmitT;
-}
+}>;
 
-export const FormStateProvider: React.FC<IProps> = ({
-  children,
+export const FormStateProvider: React.FC<PropsT> = ({
   initialValues,
   initialErrors,
   handleValidate,
   handleSubmit,
-}: IProps) => {
+  children,
+}: PropsT) => {
   const getInitialErrors = () => initialErrors ?? {};
 
   const formState = useFormState(
