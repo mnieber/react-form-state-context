@@ -33,16 +33,19 @@ export interface HandleSubmitArgsT {
 
 export type HandleSubmitT = ({ values }: HandleSubmitArgsT) => void;
 
+export const defaultCreateState = (initialValues: any) => {
+  return React.useState({ ...initialValues });
+};
+
 const useFormState = (
   initialValues: IFormState["values"],
   initialErrors: IFormState["errors"],
   handleValidate: HandleValidateT | undefined,
-  handleSubmit: HandleSubmitT
+  handleSubmit: HandleSubmitT,
+  createState: Function
 ): IFormState => {
-  const [values, setValues] = React.useState({ ...initialValues });
-  const [errors, setErrors] = React.useState<IFormState["errors"]>({
-    ...initialErrors,
-  });
+  const [values, setValues] = createState(initialValues);
+  const [errors, setErrors] = createState(initialErrors);
 
   const _checkKey = (key: string) => {
     if (initialValues[key] === undefined) {
@@ -150,6 +153,7 @@ type PropsT = React.PropsWithChildren<{
   initialErrors?: IFormState["errors"];
   handleValidate?: HandleValidateT;
   handleSubmit: HandleSubmitT;
+  createState?: Function;
 }>;
 
 export const FormStateProvider: React.FC<PropsT> = ({
@@ -157,6 +161,7 @@ export const FormStateProvider: React.FC<PropsT> = ({
   initialErrors,
   handleValidate,
   handleSubmit,
+  createState,
   children,
 }: PropsT) => {
   const getInitialErrors = () => initialErrors ?? {};
@@ -165,7 +170,8 @@ export const FormStateProvider: React.FC<PropsT> = ({
     initialValues,
     getInitialErrors(),
     handleValidate,
-    handleSubmit
+    handleSubmit,
+    createState ?? defaultCreateState
   );
 
   const hash =
