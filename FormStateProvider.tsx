@@ -2,7 +2,9 @@ import React from "react";
 
 export interface IFormState {
   values: { [fieldName: string]: any };
+  initialValues: IFormState["values"];
   errors: { [fieldName: string]: string };
+  initialErrors: IFormState["errors"];
   validate: () => void;
   submit: () => void;
   getValue: (fieldName: string) => any;
@@ -117,13 +119,17 @@ const useFormState = (
     setError,
     getError,
     reset,
+    initialValues,
+    initialErrors,
   };
 };
 
 const getNullFormState = (): IFormState => {
   return {
     values: {},
+    initialValues: {},
     errors: {},
+    initialErrors: {},
     validate: () => {},
     submit: () => {},
     getValue: (fieldName: string) => undefined,
