@@ -180,10 +180,12 @@ export const FormStateProvider: React.FC<PropsT> = ({
     createState ?? defaultCreateState
   );
 
-  const hash =
-    JSON.stringify(initialValues) + JSON.stringify(getInitialErrors());
-  if (useDetectChange(hash)) {
-    formState.reset(initialValues, getInitialErrors());
+  if (useDetectChange(JSON.stringify(initialValues))) {
+    formState.reset(initialValues, formState.errors);
+  }
+
+  if (useDetectChange(JSON.stringify(getInitialErrors()))) {
+    formState.reset(formState.values, getInitialErrors());
   }
 
   return (
