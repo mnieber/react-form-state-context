@@ -60,6 +60,5 @@ export const createFormFieldProps = (props: IProps) => {
           },
         }),
     name: props.fieldName,
-    key: props.formState.initialValues[props.fieldName],
   };
 };
