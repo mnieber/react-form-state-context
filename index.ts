@@ -4,7 +4,7 @@ export {
   FormStateContext,
 } from "./FormStateProvider";
 export type {
-  IFormState,
+  FormState,
   HandleValidateT,
   HandleValidateArgsT,
   HandleSubmitT,

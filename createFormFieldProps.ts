@@ -20,16 +20,17 @@ will have the effect that:
 */
 
 import React from "react";
-import { IFormState } from "./FormStateProvider";
+import { FormState } from "./FormStateProvider";
 
 type FieldTypeT = "checkbox" | "text" | "password";
 
 interface IProps {
-  formState: IFormState;
+  formState: FormState;
   fieldName: string;
   fieldType: FieldTypeT;
   controlled?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  readOnly?: boolean;
 }
 
 export const createFormFieldProps = (props: IProps) => {
@@ -60,5 +61,6 @@ export const createFormFieldProps = (props: IProps) => {
           },
         }),
     name: props.fieldName,
+    readOnly: props.readOnly,
   };
 };

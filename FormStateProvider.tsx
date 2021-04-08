@@ -1,140 +1,155 @@
 import React from "react";
 
-export interface IFormState {
-  values: { [fieldName: string]: any };
-  errors: { [fieldName: string]: string };
-  validate: () => void;
-  submit: () => void;
-  getValue: (fieldName: string) => any;
-  setValue: (fieldName: string, value: any) => void;
-  setError: (fieldName: string, error: string) => void;
-  getError: (fieldName: string) => string;
-  reset: (
-    newInitialValues: IFormState["values"],
-    newInitialErrors: IFormState["errors"]
-  ) => void;
-}
+export type ValidateOptionsT = {
+  fieldNames?: string[];
+};
 
 export interface HandleValidateArgsT {
-  values: IFormState["values"];
-  getValue: IFormState["getValue"];
-  setError: IFormState["setError"];
+  formState: FormState;
+  values: FormState["values"];
+  getValue: FormState["getValue"];
+  setError: FormState["setError"];
 }
 
-export type HandleValidateT = ({
-  values,
-  getValue,
-  setError,
-}: HandleValidateArgsT) => void;
+export type HandleValidateT = (args: HandleValidateArgsT) => void;
 
 export interface HandleSubmitArgsT {
-  values: IFormState["values"];
+  formState: FormState;
+  values: FormState["values"];
 }
 
-export type HandleSubmitT = ({ values }: HandleSubmitArgsT) => void;
+export type HandleSubmitT = (args: HandleSubmitArgsT) => void;
 
 export const defaultCreateState = (initialValues: any) => {
   return React.useState({ ...initialValues });
 };
 
-const useFormState = (
-  initialValues: IFormState["values"],
-  initialErrors: IFormState["errors"],
-  handleValidate: HandleValidateT | undefined,
-  handleSubmit: HandleSubmitT,
-  createState: Function
-): IFormState => {
-  const [values, setValues] = createState(initialValues);
-  const [errors, setErrors] = createState(initialErrors);
+export class FormState {
+  values: { [fieldName: string]: any };
+  errors: { [fieldName: string]: any };
+  handleValidate: HandleValidateT | undefined;
+  handleSubmit: HandleSubmitT | undefined;
 
-  const _checkKey = (key: string) => {
-    if (initialValues[key] === undefined) {
+  _initialValues: FormState["values"];
+  _initialErrors: FormState["errors"];
+
+  setValues: (values: FormState["values"]) => void;
+  setErrors: (errors: FormState["errors"]) => void;
+
+  constructor(
+    initialValues: FormState["values"],
+    initialErrors: FormState["errors"],
+    handleValidate: HandleValidateT | undefined,
+    handleSubmit: HandleSubmitT | undefined,
+    createState?: Function
+  ) {
+    this._initialValues = initialValues;
+    this._initialErrors = initialErrors;
+
+    [this.values, this.setValues] = (createState ?? defaultCreateState)(
+      initialValues
+    );
+    [this.errors, this.setErrors] = (createState ?? defaultCreateState)(
+      initialErrors
+    );
+
+    this.handleValidate = handleValidate;
+    this.handleSubmit = handleSubmit;
+  }
+
+  _checkKey = (key: string) => {
+    if (this._initialValues[key] === undefined) {
       console.error(`Unknown form field ${key}`);
     }
   };
 
-  const setValue = (key: string, value: any) => {
-    _checkKey(key);
-    setValues({
-      ...values,
+  setValue = (key: string, value: any) => {
+    this._checkKey(key);
+    this.setValues({
+      ...this.values,
       [key]: value,
     });
   };
 
-  const getValue = (key: string) => {
-    _checkKey(key);
-    return values[key];
+  getValue = (key: string) => {
+    this._checkKey(key);
+    return this.values[key];
   };
 
-  const setError = (key: string, error: string) => {
-    setErrors({
-      ...errors,
+  setError = (key: string, error: string | undefined) => {
+    this.setErrors({
+      ...this.errors,
       [key]: error,
     });
   };
 
-  const reset = (
-    newInitialValues: IFormState["values"],
-    newInitialErrors: IFormState["errors"]
+  reset = (
+    newInitialValues: FormState["values"],
+    newInitialErrors: FormState["errors"]
   ) => {
-    setValues(newInitialValues);
-    setErrors(newInitialErrors);
+    this.setValues(newInitialValues);
+    this.setErrors(newInitialErrors);
   };
 
-  const getError = (key: string) => {
-    return errors[key];
+  getError = (key: string) => {
+    return this.errors[key];
   };
 
-  const validate = () => {
-    const errors = {} as IFormState["errors"];
-    if (handleValidate) {
-      handleValidate({
-        values,
-        getValue,
+  validate = (options?: ValidateOptionsT): boolean => {
+    const errors = {} as FormState["errors"];
+    if (this.handleValidate) {
+      this.handleValidate({
+        formState: this,
+        values: this.values,
+        getValue: this.getValue,
         setError: (fieldName, error) => {
-          _checkKey(fieldName);
-          errors[fieldName] = error;
+          this._checkKey(fieldName);
+          if (
+            options?.fieldNames !== undefined &&
+            !options?.fieldNames.includes(fieldName)
+          ) {
+            return;
+          }
+          if (error === undefined) {
+            if (fieldName in errors) {
+              delete errors[fieldName];
+            }
+          } else {
+            errors[fieldName] = error;
+          }
         },
       });
     }
-    setErrors(errors);
+    this.setErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const submit = () => {
-    if (validate()) {
-      if (!!handleSubmit) handleSubmit({ values });
+  submit = () => {
+    if (!this.validate()) {
+      return false;
     }
+    if (this.handleSubmit) {
+      this.handleSubmit({
+        formState: this,
+        values: this.values,
+      });
+    }
+    return true;
   };
+}
 
-  return {
-    values,
-    errors,
-    validate,
-    submit,
-    getValue,
-    setValue,
-    setError,
-    getError,
-    reset,
-  };
-};
-
-const getNullFormState = (): IFormState => {
-  return {
-    values: {},
-    errors: {},
-    validate: () => {},
-    submit: () => {},
-    getValue: (fieldName: string) => undefined,
-    setValue: (fieldName: string, value: any) => {},
-    setError: (fieldName: string, value: string) => {},
-    getError: (fieldName: string) => "",
-    reset: (
-      initialValues: IFormState["values"],
-      initialErrors: IFormState["errors"]
-    ) => {},
-  };
+const getNullFormState = (): FormState => {
+  return new FormState(
+    {},
+    {},
+    () => {
+      return false;
+    },
+    () => {
+      return false;
+    },
+    () => [{}, () => {}]
+  );
 };
 
 export const FormStateContext = React.createContext(getNullFormState());
@@ -149,10 +164,10 @@ const useDetectChange = (x: string) => {
 };
 
 type PropsT = React.PropsWithChildren<{
-  initialValues: IFormState["values"];
-  initialErrors?: IFormState["errors"];
+  initialValues: FormState["values"];
+  initialErrors?: FormState["errors"];
   handleValidate?: HandleValidateT;
-  handleSubmit: HandleSubmitT;
+  handleSubmit?: HandleSubmitT;
   createState?: Function;
 }>;
 
@@ -166,7 +181,7 @@ export const FormStateProvider: React.FC<PropsT> = ({
 }: PropsT) => {
   const getInitialErrors = () => initialErrors ?? {};
 
-  const formState = useFormState(
+  const formState = new FormState(
     initialValues,
     getInitialErrors(),
     handleValidate,
