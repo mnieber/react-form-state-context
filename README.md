@@ -1,8 +1,7 @@
 # Forms
 
-This module contains a custom solution for processing forms. We will outline the solution
-in this section, and give more details in the rest of this document. The main idea is that the form state is stored in a single object which is made available to all
-the elements in the form.
+This library is used for processing forms. It stores a form state in a single object which is made available to all
+the elements in the form via a React context.
 
 ```
         <FormStateProvider ...>
@@ -14,9 +13,7 @@ the elements in the form.
         </FormStateProvider>
 ```
 
-The form elements obtain access to the form state using `const formState = useFormStateContext();`. This has the advantage that you do not need to pass the form state down from parent component to child component. Every form element will work with the form state that is made available by the FormStateProvider that it is nested in (where the nesting can be arbitrarily deep).
-
-The elements can use `formState` as follows:
+The form elements obtain access to the form state using `const formState = useFormStateContext();`. The elements can use `formState` as follows:
 
 - `formState.getValue(<field name>)` is called to get a current form value. For example, `NameField` will call `formState.getValue('name')` to populate the name field.
 
@@ -34,7 +31,7 @@ The elements can use `formState` as follows:
 
 ### Field names
 
-Field names are a central concept for working with the form state:
+Field names are strings that play a central rolw when working with the form state:
 
 - you need the field name to get or set a value in the form state.
 - you need the field name to get or set an error in the form state.
@@ -42,21 +39,19 @@ Field names are a central concept for working with the form state:
 - the `submit` function receives the mapping from field names to values
 - field names are used to set the initial form values (see the explanation of the `initialValues` property of `FormStateProvider` below)
 
-You need to tell the FormStateProvider about the set of known field names in its `initialValues` property. When you use an unknown field name in any form state function, an error will be printed to the console.
-
-As a developer you have the choice between creating a React component that works with a fixed field name (e.g. the NameField component of the example will use 'name' as the field name, and the AddressField will use 'address') or creating a generic React component that has a property for the field name (e.g. you could create a <TextField fieldName='address'> component that works with the 'address' field of the form state).
+You need to tell the FormStateProvider about the set of known field names in its `initialValues` property. Using an unknown field name in any form state function results in an error.
 
 ### FormStateProvider
 
 The `FormStateProvider` takes the following properties:
 
-- `initialValues` is a dictionary that maps each field-name to a value. If there is no value yet for a field-name, then you should map that field-name to `null` (this way, `FormStateProvider` still knows that the field exists, which is important because you cannot use `formState` with any field names that were not mentioned in `initialValues`).
+- `initialValues` is a dictionary that maps each field-name to a value. If there is no value yet for a field-name, then you should map that field-name to `null` (this way, `FormStateProvider` still knows that the field exists).
 
 NOTE: if you change the value of `initialValues` or `initialErrors` (see below) then `formState.reset` is called automatically with the latest values of `initialValues` and `initialErrors`.
 
 - the (optional) `initialErrors` property is a dictionary that maps each field-name to an error string. It is used to initialize the form errors.
 
-- the `handleValidate` property contains a function that is executed when you call `formState.validate()`. The purpose of `handleValidate` is to set form field errors. It takes two arguments: `getValue` and `setError`, as shown in the example code below:
+- the `handleValidate` property contains a function that is executed when you call `formState.validate()`. The purpose of `handleValidate` is to set form field errors:
 
 ```
         const handleValidate = ({ values, getValue, setError }) => {
