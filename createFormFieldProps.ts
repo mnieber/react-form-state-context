@@ -19,10 +19,10 @@ will have the effect that:
 
 */
 
-import React from "react";
-import { FormState } from "./FormStateProvider";
+import React from 'react';
+import { FormState } from './FormStateProvider';
 
-type FieldTypeT = "checkbox" | "text" | "password";
+type FieldTypeT = 'checkbox' | 'text' | 'password';
 
 interface IProps {
   formState: FormState;
@@ -34,13 +34,14 @@ interface IProps {
 }
 
 export const createFormFieldProps = (props: IProps) => {
-  const valueKey = !!props.controlled ? "value" : "defaultValue";
+  const valueKey = !!props.controlled ? 'value' : 'defaultValue';
+  const value = props.formState.getValue(props.fieldName);
 
   return {
-    ...(props.fieldType === "checkbox"
+    ...(props.fieldType === 'checkbox'
       ? {
           checked: props.formState.getValue(props.fieldName),
-          type: "checkbox",
+          type: 'checkbox',
           onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
             props.formState.setValue(
               props.fieldName,
@@ -52,7 +53,7 @@ export const createFormFieldProps = (props: IProps) => {
           },
         }
       : {
-          [valueKey]: props.formState.getValue(props.fieldName),
+          [valueKey]: value === null ? undefined : value,
           onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
             props.formState.setValue(props.fieldName, e.target.value);
             if (props.onChange !== undefined) {
