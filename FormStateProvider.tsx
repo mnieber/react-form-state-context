@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 export type ValidateOptionsT = {
   fieldNames?: string[];
@@ -6,22 +6,38 @@ export type ValidateOptionsT = {
 
 export interface HandleValidateArgsT {
   formState: FormState;
-  values: FormState["values"];
-  getValue: FormState["getValue"];
-  setError: FormState["setError"];
+  values: FormState['values'];
+  getValue: FormState['getValue'];
+  setError: FormState['setError'];
 }
 
 export type HandleValidateT = (args: HandleValidateArgsT) => void;
 
 export interface HandleSubmitArgsT {
   formState: FormState;
-  values: FormState["values"];
+  values: FormState['values'];
 }
 
 export type HandleSubmitT = (args: HandleSubmitArgsT) => void;
 
 export const defaultCreateState = (initialValues: any) => {
-  return React.useState({ ...initialValues });
+  // This is the actual form state, which is mutable
+  const formValuesRef = React.useRef<FormState['values']>({
+    ...initialValues,
+  });
+  // This is a "shadow" form state that we keep up-to-date with
+  // formValuesRef. Its only purpose is to trigger a re-render
+  // of components that use the FormStateContext.
+  const [_, setState] = React.useState<FormState['values']>({});
+
+  const setValues = (values: FormState['values']) => {
+    // Update the mutable form state
+    Object.assign(formValuesRef.current, values);
+    // Update the shadow form state to trigger a re-render.
+    setState({ ...formValuesRef.current });
+  };
+
+  return [formValuesRef.current, setValues];
 };
 
 export class FormState {
@@ -30,15 +46,15 @@ export class FormState {
   handleValidate: HandleValidateT | undefined;
   handleSubmit: HandleSubmitT | undefined;
 
-  _initialValues: FormState["values"];
-  _initialErrors: FormState["errors"];
+  _initialValues: FormState['values'];
+  _initialErrors: FormState['errors'];
 
-  setValues: (values: FormState["values"]) => void;
-  setErrors: (errors: FormState["errors"]) => void;
+  setValues: (values: FormState['values']) => void;
+  setErrors: (errors: FormState['errors']) => void;
 
   constructor(
-    initialValues: FormState["values"],
-    initialErrors: FormState["errors"],
+    initialValues: FormState['values'],
+    initialErrors: FormState['errors'],
     handleValidate: HandleValidateT | undefined,
     handleSubmit: HandleSubmitT | undefined,
     createState?: Function
@@ -84,8 +100,8 @@ export class FormState {
   };
 
   reset = (
-    newInitialValues: FormState["values"],
-    newInitialErrors: FormState["errors"]
+    newInitialValues: FormState['values'],
+    newInitialErrors: FormState['errors']
   ) => {
     this.setValues(newInitialValues);
     this.setErrors(newInitialErrors);
@@ -96,7 +112,7 @@ export class FormState {
   };
 
   validate = (options?: ValidateOptionsT): boolean => {
-    const errors = {} as FormState["errors"];
+    const errors = {} as FormState['errors'];
     if (this.handleValidate) {
       this.handleValidate({
         formState: this,
@@ -164,8 +180,8 @@ const useDetectChange = (x: string) => {
 };
 
 type PropsT = React.PropsWithChildren<{
-  initialValues: FormState["values"];
-  initialErrors?: FormState["errors"];
+  initialValues: FormState['values'];
+  initialErrors?: FormState['errors'];
   handleValidate?: HandleValidateT;
   handleSubmit?: HandleSubmitT;
   createState?: Function;
