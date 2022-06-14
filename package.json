@@ -1,6 +1,6 @@
 {
   "name": "react-form-state-context",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Provide form state via a React Context",
   "main": "index.js",
   "repository": "https://github.com/mnieber/react-form-state-context.git",
@@ -9,10 +9,10 @@
   "types": "index.d.ts",
   "prepublish": "tsc",
   "dependencies": {
-    "@types/react": "^16.9.52",
+    "@types/react": ">=16.9.52",
     "react": ">=16.13.1"
   },
   "devDependencies": {
-    "typescript": "^4.0.3"
+    "typescript": ">=4.0.3"
   }
 }
