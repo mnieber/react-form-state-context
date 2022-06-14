@@ -31,8 +31,16 @@ export const defaultCreateState = (initialValues: any) => {
   const [_, setState] = React.useState<FormState['values']>({});
 
   const setValues = (values: FormState['values']) => {
+    // Because values may be an alias for formValuesRef.current,
+    // make a copy first.
+    const _values = { ...values };
+
     // Update the mutable form state
-    Object.assign(formValuesRef.current, values);
+    for (const key of Object.keys(formValuesRef.current)) {
+      formValuesRef.current[key] = undefined;
+    }
+    Object.assign(formValuesRef.current, _values);
+
     // Update the shadow form state to trigger a re-render.
     setState({ ...formValuesRef.current });
   };
