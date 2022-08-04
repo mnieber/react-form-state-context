@@ -59,7 +59,7 @@ The `FormStateProvider` takes the following properties:
 
 - `initialValues` is a dictionary that maps each field-name to a value. If there is no value yet for a field-name, then you should map that field-name to `null` (this way, `FormStateProvider` still knows that the field exists, which is important because you cannot use `formState` with any field names that were not mentioned in `initialValues`).
 
-NOTE: if you change the value of `initialValues` or `initialErrors` (see below) then `formState.reset` is called automatically with the latest values of `initialValues` and `initialErrors`.
+NOTE: if you change the value of `initialValues` or `initialErrors` (see below) then `formState.reset` is called automatically with the latest values of `initialValues` and `initialErrors`. The JSON.stringify function is used to determine if the values or errors have changed, so ensure that the `initialValues` or `initialErrors` are stringify-able (if they are not, then you may be able to fix this by adding a `toJSON` function to these objects).
 
 - the (optional) `initialErrors` property is a dictionary that maps each field-name to an error string. It is used to initialize the form errors.
 
