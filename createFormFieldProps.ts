@@ -22,7 +22,7 @@ will have the effect that:
 import React from 'react';
 import { FormState } from './FormStateProvider';
 
-type FieldTypeT = 'checkbox' | 'text' | 'password';
+export type FieldTypeT = 'checkbox' | 'text' | 'password';
 
 interface IProps {
   formState: FormState;
