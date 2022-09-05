@@ -1,6 +1,6 @@
 {
   "name": "react-form-state-context",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Provide form state via a React Context",
   "main": "index.js",
   "repository": "https://github.com/mnieber/react-form-state-context.git",
