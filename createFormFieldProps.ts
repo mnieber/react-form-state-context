@@ -41,7 +41,6 @@ export const createFormFieldProps = (props: IProps) => {
     ...(props.fieldType === 'checkbox'
       ? {
           checked: props.formState.getValue(props.fieldName),
-          type: 'checkbox',
           onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
             props.formState.setValue(
               props.fieldName,
@@ -61,6 +60,7 @@ export const createFormFieldProps = (props: IProps) => {
             }
           },
         }),
+    type: props.fieldType,
     name: props.fieldName,
     readOnly: props.readOnly,
   };
