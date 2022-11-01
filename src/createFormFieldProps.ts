@@ -35,24 +35,21 @@ interface IProps {
 
 export const createFormFieldProps = (props: IProps) => {
   const valueKey = !!props.controlled ? 'value' : 'defaultValue';
-  const value = props.formState.getValue(props.fieldName);
+  const value = () => props.formState.getValue(props.fieldName);
 
   return {
     ...(props.fieldType === 'checkbox'
       ? {
-          checked: props.formState.getValue(props.fieldName),
+          checked: !!value(),
           onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-            props.formState.setValue(
-              props.fieldName,
-              !props.formState.getValue(props.fieldName)
-            );
+            props.formState.setValue(props.fieldName, !value());
             if (props.onChange !== undefined) {
               props.onChange(e);
             }
           },
         }
       : {
-          [valueKey]: value === null ? undefined : value,
+          [valueKey]: value() === null ? '' : value(),
           onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
             props.formState.setValue(props.fieldName, e.target.value);
             if (props.onChange !== undefined) {

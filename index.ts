@@ -1,14 +1,15 @@
-export { createFormFieldProps } from './createFormFieldProps';
-export type { FieldTypeT } from './createFormFieldProps';
+export { createFormFieldProps } from './src/createFormFieldProps';
+export type { FieldTypeT } from './src/createFormFieldProps';
 export {
   FormStateContext,
   FormStateProvider,
   useFormStateContext,
-} from './FormStateProvider';
+} from './src/FormStateProvider';
 export type {
   FormState,
   HandleSubmitArgsT,
   HandleSubmitT,
   HandleValidateArgsT,
   HandleValidateT,
-} from './FormStateProvider';
+} from './src/FormStateProvider';
+export { unflatten } from './src/unflatten';
