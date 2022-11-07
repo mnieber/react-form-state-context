@@ -18,7 +18,7 @@ export interface HandleSubmitArgsT {
   values: FormState['values'];
 }
 
-export type HandleSubmitT = (args: HandleSubmitArgsT) => void;
+export type HandleSubmitT = (args: HandleSubmitArgsT) => Promise<any>;
 
 export const defaultCreateState = (initialValues: any) => {
   // This is the actual form state, which is mutable
@@ -51,6 +51,7 @@ export const defaultCreateState = (initialValues: any) => {
 export class FormState {
   values: { [fieldName: string]: any };
   errors: { [fieldName: string]: any };
+  flags: { [fieldName: string]: any };
   handleValidate: HandleValidateT | undefined;
   handleSubmit: HandleSubmitT | undefined;
 
@@ -59,6 +60,7 @@ export class FormState {
 
   setValues: (values: FormState['values']) => void;
   setErrors: (errors: FormState['errors']) => void;
+  setFlags: (flags: FormState['flags']) => void;
 
   constructor(
     initialValues: FormState['values'],
@@ -76,6 +78,7 @@ export class FormState {
     [this.errors, this.setErrors] = (createState ?? defaultCreateState)(
       initialErrors
     );
+    [this.flags, this.setFlags] = (createState ?? defaultCreateState)({});
 
     this.handleValidate = handleValidate;
     this.handleSubmit = handleSubmit;
@@ -107,16 +110,28 @@ export class FormState {
     });
   };
 
+  getError = (key: string) => {
+    return this.errors[key];
+  };
+
+  setFlag = (key: string, flag: boolean) => {
+    this.setFlags({
+      ...this.flags,
+      [key]: flag,
+    });
+  };
+
+  getFlag = (key: string) => {
+    return this.flags[key];
+  };
+
   reset = (
     newInitialValues: FormState['values'],
     newInitialErrors: FormState['errors']
   ) => {
     this.setValues(newInitialValues);
     this.setErrors(newInitialErrors);
-  };
-
-  getError = (key: string) => {
-    return this.errors[key];
+    this.setFlags({});
   };
 
   validate = (options?: ValidateOptionsT): boolean => {
@@ -153,10 +168,11 @@ export class FormState {
       return false;
     }
     if (this.handleSubmit) {
+      this.setFlag('submitting', true);
       this.handleSubmit({
         formState: this,
         values: this.values,
-      });
+      }).then(() => this.setFlag('submitting', false));
     }
     return true;
   };
@@ -170,7 +186,7 @@ const getNullFormState = (): FormState => {
       return false;
     },
     () => {
-      return false;
+      return Promise.resolve();
     },
     () => [{}, () => {}]
   );
