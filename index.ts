@@ -7,6 +7,8 @@ export {
 } from './src/FormStateProvider';
 export type {
   FormState,
+  HandleCancelArgsT,
+  HandleCancelT,
   HandleSubmitArgsT,
   HandleSubmitT,
   HandleValidateArgsT,

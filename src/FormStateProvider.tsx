@@ -20,6 +20,12 @@ export interface HandleSubmitArgsT {
 
 export type HandleSubmitT = (args: HandleSubmitArgsT) => Promise<any>;
 
+export interface HandleCancelArgsT {
+  formState: FormState;
+}
+
+export type HandleCancelT = (args: HandleCancelArgsT) => void;
+
 export const defaultCreateState = (initialValues: any) => {
   // This is the actual form state, which is mutable
   const formValuesRef = React.useRef<FormState['values']>({
@@ -54,6 +60,7 @@ export class FormState {
   flags: { [fieldName: string]: any };
   handleValidate: HandleValidateT | undefined;
   handleSubmit: HandleSubmitT | undefined;
+  handleCancel: HandleCancelT | undefined;
 
   _initialValues: FormState['values'];
   _initialErrors: FormState['errors'];
@@ -67,6 +74,7 @@ export class FormState {
     initialErrors: FormState['errors'],
     handleValidate: HandleValidateT | undefined,
     handleSubmit: HandleSubmitT | undefined,
+    handleCancel?: HandleCancelT | undefined,
     createState?: Function
   ) {
     this._initialValues = initialValues;
@@ -82,6 +90,7 @@ export class FormState {
 
     this.handleValidate = handleValidate;
     this.handleSubmit = handleSubmit;
+    this.handleCancel = handleCancel;
   }
 
   _checkKey = (key: string) => {
@@ -176,6 +185,15 @@ export class FormState {
     }
     return true;
   };
+
+  cancel = () => {
+    if (this.handleCancel) {
+      this.handleCancel({
+        formState: this,
+      });
+    }
+    return true;
+  };
 }
 
 const getNullFormState = (): FormState => {
@@ -184,6 +202,9 @@ const getNullFormState = (): FormState => {
     {},
     () => {
       return false;
+    },
+    () => {
+      return Promise.resolve();
     },
     () => {
       return Promise.resolve();
@@ -208,7 +229,9 @@ type PropsT = React.PropsWithChildren<{
   initialErrors?: FormState['errors'];
   handleValidate?: HandleValidateT;
   handleSubmit?: HandleSubmitT;
+  handleCancel?: HandleCancelT;
   createState?: Function;
+  formStateRef?: React.MutableRefObject<FormState | null>;
 }>;
 
 export const FormStateProvider: React.FC<PropsT> = ({
@@ -216,7 +239,9 @@ export const FormStateProvider: React.FC<PropsT> = ({
   initialErrors,
   handleValidate,
   handleSubmit,
+  handleCancel,
   createState,
+  formStateRef,
   children,
 }: PropsT) => {
   const getInitialErrors = () => initialErrors ?? {};
@@ -226,8 +251,13 @@ export const FormStateProvider: React.FC<PropsT> = ({
     getInitialErrors(),
     handleValidate,
     handleSubmit,
+    handleCancel,
     createState ?? defaultCreateState
   );
+
+  if (formStateRef) {
+    formStateRef.current = formState;
+  }
 
   if (useDetectChange(JSON.stringify(initialValues))) {
     formState.reset(initialValues, formState.errors);
