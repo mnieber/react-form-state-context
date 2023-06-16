@@ -1,10 +1,10 @@
-export { createFormFieldProps } from './src/createFormFieldProps';
-export type { FieldTypeT } from './src/createFormFieldProps';
+export { createFormFieldProps } from './lib/createFormFieldProps';
+export type { FieldTypeT } from './lib/createFormFieldProps';
 export {
   FormStateContext,
   FormStateProvider,
   useFormStateContext,
-} from './src/FormStateProvider';
+} from './lib/FormStateProvider';
 export type {
   FormState,
   HandleCancelArgsT,
@@ -13,5 +13,5 @@ export type {
   HandleSubmitT,
   HandleValidateArgsT,
   HandleValidateT,
-} from './src/FormStateProvider';
-export { unflatten } from './src/unflatten';
+} from './lib/FormStateProvider';
+export { unflatten } from './lib/unflatten';

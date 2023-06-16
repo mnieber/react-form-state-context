@@ -181,7 +181,7 @@ export class FormState {
       this.handleSubmit({
         formState: this,
         values: this.values,
-      }).then(() => this.setFlag('submitting', false));
+      }).finally(() => this.setFlag('submitting', false));
     }
     return true;
   };
@@ -216,10 +216,14 @@ const getNullFormState = (): FormState => {
 export const FormStateContext = React.createContext(getNullFormState());
 
 const useDetectChange = (x: string) => {
-  const [memo, setMemo] = React.useState(x);
-  const changed = x !== memo;
+  const ref = React.useRef<string | null>(null);
+  if (ref.current === null) {
+    ref.current = x;
+  }
+
+  const changed = x !== ref.current;
   if (changed) {
-    setMemo(x);
+    ref.current = x;
   }
   return changed;
 };
