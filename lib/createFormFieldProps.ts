@@ -30,7 +30,6 @@ interface IProps {
   fieldType: FieldTypeT;
   controlled?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  readOnly?: boolean;
 }
 
 export const createFormFieldProps = (props: IProps) => {
@@ -59,6 +58,5 @@ export const createFormFieldProps = (props: IProps) => {
         }),
     type: props.fieldType,
     name: props.fieldName,
-    readOnly: props.readOnly,
   };
 };
