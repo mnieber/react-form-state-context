@@ -140,7 +140,6 @@ export class FormState {
   ) => {
     this.setValues(newInitialValues);
     this.setErrors(newInitialErrors);
-    this.setFlags({});
   };
 
   validate = (options?: ValidateOptionsT): boolean => {
